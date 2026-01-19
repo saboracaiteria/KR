@@ -1,40 +1,34 @@
-// Krunker Offline Mode - Network Hook + Auto Init
-// Intercepts all network calls and forces game initialization
+// Krunker Offline Mode - Network Hook + Auto Init + Force Menu
+// Intercepts all network calls and forces game initialization with visible menu
 
 (function () {
     console.log('🎮 Krunker Offline Mode - Initializing...');
 
     // ==========================================
-    // 1. AUTO-ACCEPT TERMS (bypass consent screen)
+    // 1. AUTO-ACCEPT TERMS
     // ==========================================
     try {
         localStorage.setItem('terms', '1');
+        localStorage.setItem('consent', '1');
         localStorage.setItem('krunker_settings', JSON.stringify({ "terms": true }));
     } catch (e) { }
 
     // ==========================================
-    // 2. OVERRIDE FETCH TO INTERCEPT ALL CALLS
+    // 2. OVERRIDE FETCH
     // ==========================================
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
         let url = args[0];
         if (typeof url === 'string') {
-            // Redirect matchmaker calls to our local server
             if (url.includes('matchmaker.krunker.io') || url.includes('matchmaker_beta.krunker.io')) {
-                console.log('🎯 Intercepting matchmaker call:', url);
+                console.log('🎯 Intercepting matchmaker:', url);
                 const endpoint = url.split('/').pop().split('?')[0];
                 args[0] = window.location.origin + '/' + endpoint;
-                console.log('🎯 Redirected to:', args[0]);
             }
-            // Redirect API calls
             if (url.includes('api.krunker.io') || url.includes('api_beta.krunker.io')) {
-                console.log('🎯 Intercepting API call:', url);
                 args[0] = window.location.origin + '/api/mock';
-                console.log('🎯 Redirected to:', args[0]);
             }
-            // Block recaptcha
-            if (url.includes('recaptcha') || url.includes('google.com')) {
-                console.log('🚫 Blocking external call:', url);
+            if (url.includes('recaptcha') || url.includes('google.com/recaptcha')) {
                 return new Response('{}', { status: 200 });
             }
         }
@@ -48,19 +42,13 @@
     window.XMLHttpRequest = function () {
         const xhr = new OriginalXHR();
         const originalOpen = xhr.open;
-        const originalSend = xhr.send;
-
         xhr.open = function (method, url, ...rest) {
-            this._url = url;
             if (typeof url === 'string') {
                 if (url.includes('matchmaker.krunker.io') || url.includes('matchmaker_beta.krunker.io')) {
-                    console.log('🎯 XHR Intercepting matchmaker:', url);
                     const endpoint = url.split('/').pop().split('?')[0];
                     url = window.location.origin + '/' + endpoint;
-                    console.log('🎯 XHR Redirected to:', url);
                 }
                 if (url.includes('api.krunker.io') || url.includes('api_beta.krunker.io')) {
-                    console.log('🎯 XHR Intercepting API:', url);
                     url = window.location.origin + '/api/mock';
                 }
             }
@@ -76,29 +64,16 @@
 
     class HookedWebSocket extends OriginalWebSocket {
         constructor(...args) {
-            const originalUrl = args[0];
-            // Determine WebSocket URL based on current location
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = protocol + '//' + window.location.host + '/';
-
-            console.log('🔌 Original WebSocket URL:', originalUrl);
-            console.log('🔌 Redirecting to:', wsUrl);
-
-            // Replace the original URL with our server's WebSocket
+            console.log('🔌 WebSocket redirected to:', wsUrl);
             args[0] = wsUrl;
-
             super(...args);
 
             this.addEventListener('open', () => {
-                console.log('✅ WebSocket connected to server!');
-            });
-
-            this.addEventListener('error', (e) => {
-                console.error('❌ WebSocket error:', e);
-            });
-
-            this.addEventListener('close', () => {
-                console.log('🔴 WebSocket closed');
+                console.log('✅ WebSocket connected!');
+                // Force show menu when connected
+                setTimeout(forceShowMenu, 500);
             });
         }
     }
@@ -106,60 +81,114 @@
     window.WebSocket = HookedWebSocket;
 
     // ==========================================
-    // 5. STUB MISSING FUNCTIONS
+    // 5. RECAPTCHA STUBS
     // ==========================================
     window.grecaptcha = {
-        ready: function (cb) { if (cb) cb(); },
-        execute: function () { return Promise.resolve('mock-token'); },
-        render: function () { return 0; }
+        ready: (cb) => cb && cb(),
+        execute: () => Promise.resolve('mock-token'),
+        render: () => 0
     };
-
-    window.captchaCallback = function () {
-        console.log('📌 captchaCallback triggered');
-    };
-
-    window.onSubmit = function () {
-        console.log('📌 onSubmit triggered');
-    };
+    window.captchaCallback = () => { };
+    window.onSubmit = () => { };
 
     // ==========================================
-    // 6. FORCE GAME START AFTER LOAD
+    // 6. FORCE SHOW MENU FUNCTION
+    // ==========================================
+    function forceShowMenu() {
+        console.log('📌 Forcing menu visibility...');
+
+        // Hide loading/instruction
+        const instruction = document.getElementById('instructionHolder');
+        if (instruction) instruction.style.display = 'none';
+
+        // Show menu holder
+        const menuHider = document.getElementById('menuHider');
+        if (menuHider) {
+            menuHider.style.display = 'block';
+            menuHider.style.visibility = 'visible';
+            menuHider.style.opacity = '1';
+        }
+
+        // Show menu holder parent
+        const menuHolder = document.getElementById('menuHolder');
+        if (menuHolder) {
+            menuHolder.style.display = 'block';
+            menuHolder.style.visibility = 'visible';
+        }
+
+        // Show subLogoButtons
+        const subLogoButtons = document.getElementById('subLogoButtons');
+        if (subLogoButtons) {
+            subLogoButtons.style.display = 'flex';
+            subLogoButtons.style.visibility = 'visible';
+        }
+
+        // Show menu items
+        const menuItemContainer = document.getElementById('menuItemContainer');
+        if (menuItemContainer) {
+            menuItemContainer.style.display = 'block';
+            menuItemContainer.style.visibility = 'visible';
+        }
+
+        // Show class container (player preview)
+        const classContainer = document.getElementById('menuClassContainer');
+        if (classContainer) {
+            classContainer.style.display = 'block';
+            classContainer.style.visibility = 'visible';
+        }
+
+        // Show game name/logo
+        const gameNameHolder = document.getElementById('gameNameHolder');
+        if (gameNameHolder) {
+            gameNameHolder.style.display = 'block';
+            gameNameHolder.style.visibility = 'visible';
+        }
+
+        // Hide blockers
+        const blocker = document.getElementById('blocker');
+        if (blocker) blocker.style.display = 'none';
+
+        const overlay = document.getElementById('overlay');
+        if (overlay) overlay.style.display = 'none';
+
+        // Show UI base
+        const uiBase = document.getElementById('uiBase');
+        if (uiBase) {
+            uiBase.style.display = 'block';
+            uiBase.style.visibility = 'visible';
+        }
+
+        console.log('📌 Menu should be visible now');
+    }
+
+    // ==========================================
+    // 7. FORCE CONNECTION AND MENU ON LOAD
     // ==========================================
     window.addEventListener('load', function () {
-        console.log('📌 Window loaded, attempting to force game start...');
+        console.log('📌 Window loaded');
 
-        // Try to hide loading and show menu after a delay
-        setTimeout(function () {
-            try {
-                // Hide loading text
-                const instructions = document.getElementById('instructions');
-                if (instructions) {
-                    instructions.textContent = 'Click to Play';
-                }
+        // Update loading text
+        const instructions = document.getElementById('instructions');
+        if (instructions) {
+            instructions.textContent = 'Click to Play';
+        }
 
-                // Try to trigger game init
-                if (typeof window.initGame === 'function') {
-                    console.log('📌 Calling initGame()...');
-                    window.initGame();
-                }
+        // Create WebSocket connection
+        setTimeout(() => {
+            console.log('📌 Creating WebSocket connection...');
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = protocol + '//' + window.location.host + '/';
+            window._offlineWs = new WebSocket(wsUrl);
+        }, 3000);
 
-                // Force create WebSocket connection
-                console.log('📌 Forcing WebSocket connection...');
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = protocol + '//' + window.location.host + '/';
-                const ws = new WebSocket(wsUrl);
-                ws.onopen = () => console.log('✅ Forced WebSocket connected!');
-                ws.onerror = (e) => console.error('❌ Forced WebSocket error:', e);
+        // Force show menu after delay
+        setTimeout(forceShowMenu, 5000);
+    });
 
-            } catch (e) {
-                console.error('Force start error:', e);
-            }
-        }, 5000);
+    // Also force menu on click
+    document.addEventListener('click', function (e) {
+        setTimeout(forceShowMenu, 500);
     });
 
     console.log('🎮 Krunker Offline Mode - All hooks active!');
-    console.log('   - Fetch intercepted');
-    console.log('   - XMLHttpRequest intercepted');
-    console.log('   - WebSocket hooked');
-    console.log('   - Recaptcha stubbed');
 })();
