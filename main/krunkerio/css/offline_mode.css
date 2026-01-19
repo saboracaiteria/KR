@@ -1,0 +1,190 @@
+/* ========================================
+   KRUNKER OFFLINE MODE - CLEAN UI v2
+   ========================================
+   Esconde TODOS os elementos desnecessários para modo offline
+   Para reverter, remova a importação deste arquivo no index.html
+*/
+
+/* ===== ESCONDER TODO O MENU LATERAL ===== */
+#menuItemContainer {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== PROPAGANDAS E ANÚNCIOS ===== */
+#aHolder,
+#krunkerio_728x90_1,
+.g-recaptcha,
+#captchaBtn,
+#baseLinks {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== STREAMS E REDES SOCIAIS ===== */
+#streamContainer,
+.discordSocial,
+.redditSocial,
+.twitterSocial,
+.downloadClient,
+.imageButton {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== HEADER BARS (LOGIN/REGISTER) ===== */
+#signedOutHeaderBar,
+#signedInHeaderBar,
+.headerBarLeft,
+.headerBarRight {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== LOJA, MERCH, SPIN ===== */
+#merchHolder,
+#claimHolder,
+#purchaseHolder,
+#purchaseLoad,
+#spinUI,
+#purchaseSelector {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== BOTÕES - ESCONDER TODOS EXCETO HOST GAME ===== */
+#menuBtnBrowser,
+#menuBtnJoin,
+#inviteButton,
+div[onclick*="showWindow(2)"],
+div[onclick*="showWindow(24)"],
+div[onclick*="copyInviteLink"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== GDPR/CONSENT POPUP ===== */
+#consentBlock {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== SPECTATE BUTTON ===== */
+#spectButton {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== TEAM SELECTOR ===== */
+#teamSelector {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== BUBBLE/SPEECH BOX ===== */
+#bubbleContainer,
+.speechBox {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== TEXTO "Login to buy" ===== */
+div[style*="Login to buy"],
+.menuLink {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== INFO HOLDER (Terms & Conditions, versão) ===== */
+#infoHolder {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== CUSTOM BUTTON (canto superior direito) ===== */
+div[style*="Custom"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ========================================
+   ESTILOS PARA O QUE FICOU
+   ======================================== */
+
+/* Centralizar área de botões */
+#subLogoButtons {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+}
+
+/* Estilizar o botão Host Game */
+#menuBtnHost {
+    display: block !important;
+    visibility: visible !important;
+    font-size: 28px !important;
+    padding: 18px 50px !important;
+    background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%) !important;
+    border: 3px solid #2E7D32 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    animation: pulse 2s infinite !important;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+#menuBtnHost:hover {
+    background: linear-gradient(180deg, #66BB6A 0%, #43A047 100%) !important;
+    transform: scale(1.05) !important;
+}
+
+/* Manter visível: Preview do personagem */
+#menuClassContainer {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Manter visível: Botão Customize */
+#customizeButton {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+/* Manter visível: Nome da classe */
+#menuClassName,
+#menuClassSubtext {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Manter visível: Logo */
+#gameNameHolder,
+#mainLogo {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Adicionar botão de Settings como floating button */
+#menuHolder::after {
+    content: "⚙ Settings: Press ESC then F9";
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 9999;
+}
