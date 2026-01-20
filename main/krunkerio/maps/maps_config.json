@@ -1,0 +1,62 @@
+{
+    "maps": [
+        {
+            "id": 0,
+            "name": "Burg",
+            "author": "Sidney de Vries",
+            "createdAt": 1523642400000,
+            "featured": true,
+            "verified": true,
+            "asset": "burg",
+            "thumbnail": "/textures/maps/burg_thumb.png",
+            "description": "Medieval fortress with tight corridors and vertical gameplay"
+        },
+        {
+            "id": 1,
+            "name": "Littletown",
+            "author": "Sidney de Vries",
+            "createdAt": 1523642400000,
+            "featured": true,
+            "verified": true,
+            "asset": "littletown",
+            "thumbnail": "/textures/maps/littletown_thumb.png",
+            "description": "Suburban streets with open areas and cover positions"
+        },
+        {
+            "id": 2,
+            "name": "Sandstorm",
+            "author": "Sidney de Vries",
+            "createdAt": 1523642400000,
+            "featured": true,
+            "verified": true,
+            "asset": "sandstorm",
+            "thumbnail": "/textures/maps/sandstorm_thumb.png",
+            "description": "Desert outpost with long sightlines and intense combat"
+        },
+        {
+            "id": 3,
+            "name": "Subzero",
+            "author": "Sidney de Vries",
+            "createdAt": 1523642400000,
+            "featured": true,
+            "verified": true,
+            "asset": "subzero",
+            "thumbnail": "/textures/maps/subzero_thumb.png",
+            "description": "Arctic base with icy surfaces and strategic positions"
+        },
+        {
+            "id": 4,
+            "name": "Kanji",
+            "author": "Sidney de Vries",
+            "createdAt": 1523642400000,
+            "featured": true,
+            "verified": true,
+            "asset": "kanji",
+            "thumbnail": "/textures/maps/kanji_thumb.png",
+            "description": "Japanese temple with traditional architecture and balanced layout"
+        }
+    ],
+    "version": "offline_v1.0",
+    "lastUpdate": "2026-01-20",
+    "offlineMode": true
+}

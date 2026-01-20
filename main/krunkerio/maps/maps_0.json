@@ -1,0 +1,49 @@
+{
+    "games": [
+        {
+            "id": "burg",
+            "name": "Burg",
+            "creator": "Sidney de Vries",
+            "votes": 5000,
+            "featured": true,
+            "createdAt": 1523642400000,
+            "data": "burg"
+        },
+        {
+            "id": "littletown",
+            "name": "Littletown",
+            "creator": "Sidney de Vries",
+            "votes": 4500,
+            "featured": true,
+            "createdAt": 1523642400000,
+            "data": "littletown"
+        },
+        {
+            "id": "sandstorm",
+            "name": "Sandstorm",
+            "creator": "Sidney de Vries",
+            "votes": 4800,
+            "featured": true,
+            "createdAt": 1523642400000,
+            "data": "sandstorm"
+        },
+        {
+            "id": "subzero",
+            "name": "Subzero",
+            "creator": "Sidney de Vries",
+            "votes": 4600,
+            "featured": true,
+            "createdAt": 1523642400000,
+            "data": "subzero"
+        },
+        {
+            "id": "kanji",
+            "name": "Kanji",
+            "creator": "Sidney de Vries",
+            "votes": 4900,
+            "featured": true,
+            "createdAt": 1523642400000,
+            "data": "kanji"
+        }
+    ]
+}
