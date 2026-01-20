@@ -24047,9 +24047,9 @@
                 bdW['exports']['serverBrowserRate'] = 0x2710,
                 bdW['exports']['maxPlayersTotal'] = bdW['exports']['maxPlayers'] * bdW['exports']['gamesPerServer'] + 0x32,
                 bdW['exports']['kickTimer'] = 0x15f90,
-                bdW['exports']['isNode'] ? (bdW['exports']['matchmakerURL'] = bdW['exports']['isProd'] ? 'krunker_prod' == bdX['env']['VULTR_SCHEME'] ? 'https://matchmaker.krunker.io' : 'https://matchmaker_beta.krunker.io' : 'http://127.0.0.1:5050',
-                    bdW['exports']['apiURL'] = bdW['exports']['isProd'] ? 'krunker_prod' == bdX['env']['VULTR_SCHEME'] || 'krunker_social' == bdX['env']['VULTR_SCHEME'] ? 'https://api.krunker.io' : 'https://api_beta.krunker.io' : 'http://127.0.0.1:5060') : (bdW['exports']['matchmakerURL'] = bdW['exports']['isProd'] ? 'krunker.io' == location['hostname'] ? 'https://matchmaker.krunker.io' : 'https://matchmaker_beta.krunker.io' : 'http://127.0.0.1:5050',
-                        bdW['exports']['apiURL'] = bdW['exports']['isProd'] ? 'krunker.io' == location['hostname'] ? 'https://api.krunker.io' : 'https://api_beta.krunker.io' : 'http://127.0.0.1:5060'),
+                bdW['exports']['isNode'] ? (bdW['exports']['matchmakerURL'] = 'http://127.0.0.1:5050',
+                    bdW['exports']['apiURL'] = 'http://127.0.0.1:5060') : (bdW['exports']['matchmakerURL'] = 'http://127.0.0.1:5050',
+                        bdW['exports']['apiURL'] = 'http://127.0.0.1:5060'),
                 bdW['exports']['needsRestart'] = !0x1,
                 bdW['exports']['useLooseClient'] = !0x1,
                 bdW['exports']['rewardTime'] = 0x1499700,
@@ -24281,7 +24281,7 @@
                 bdW['exports']['objectLimitF'] = 0x1770,
                 bdW['exports']['spawnLimit'] = 0x14,
                 bdW['exports']['billboardCnt'] = 0x5,
-                bdW['exports']['followURLS'] = ['https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/sidney.devries/', 'https://www.instagram.com/vincent.de.vries/'],
+                bdW['exports']['followURLS'] = [],
                 bdW['exports']['gravity'] = 0.00015,
                 bdW['exports']['deathY'] = -0x64,
                 bdW['exports']['skyScale'] = 0x4650,
@@ -85376,9 +85376,9 @@
                     Howler['pos'](cAJ['x'], cAJ['y'] + cAJ['height'] - czN['cameraHeight'], cAJ['z']),
                     Howler['orientation'](Math['sin'](cAI['xDr'] + Math['PI']), cAI['yDr'], Math['cos'](cAI['xDr'] + Math['PI'])),
                     /*cAH['singlePlayer']*/true && cAJ['y'] <= cAH['map']['deathY'] && cLk(cAJ['sid'])) : window['spectating'] && (window['spectTarget'] && (window['spectTarget']['active'] ? cAI['followCam'](window['spectTarget'], cB6) : spectMode()),
-                        !window['spectTarget'] && cAI['freeCam'](cB6),
-                        Howler['pos'](cAI['object']['position']['x'], cAI['object']['position']['y'], cAI['object']['position']['z']),
-                        Howler['orientation'](Math['sin'](cAI['xDr'] + Math['PI']), cAI['yDr'], Math['cos'](cAI['xDr'] + Math['PI']))),
+                    !window['spectTarget'] && cAI['freeCam'](cB6),
+                    Howler['pos'](cAI['object']['position']['x'], cAI['object']['position']['y'], cAI['object']['position']['z']),
+                    Howler['orientation'](Math['sin'](cAI['xDr'] + Math['PI']), cAI['yDr'], Math['cos'](cAI['xDr'] + Math['PI']))),
                 cAH['update'](cB6, cB5, cAJ),
                 cAH['updateFlags'](cAJ, cB6),
                 function (czK) {
@@ -85576,7 +85576,7 @@
                             '-1': cLK,
                             0: cKU,
                             1: cLf,
-                            8: cKZ, 
+                            8: cKZ,
                             2: cLi,
                             3: cLk,
                             'kst': cLC,
@@ -85819,9 +85819,9 @@
                             , cOF = 0x0
                             , cOH = !0x1;
                         for (let cOo in cOp) {
-                            let cP4 = cOp[cOo] ? "krunker.io":"krunker.io"//remove the part after ? to revert to original (including the ?)
+                            let cP4 = cOp[cOo] ? "krunker.io" : "krunker.io"//remove the part after ? to revert to original (including the ?)
                             //let cP5 = cP4['endsWith'](':443') ? 'https:' : 'http:';
-                            cOG['default']['get'](/*cP5 +*/ "https:"+/**/'//' + cP4 + '/ping')['then'](() => {
+                            cOG['default']['get'](/*cP5 +*/ "https:" +/**/'//' + cP4 + '/ping')['then'](() => {
                                 cOH || cOR['setDefaultRegion'](cOo),
                                     cOH = !0x0,
                                     cOm(cOo);
