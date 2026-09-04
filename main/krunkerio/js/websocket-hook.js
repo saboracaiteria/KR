@@ -363,23 +363,6 @@
         }
     };
 
-    // 3.1 INTERCEPTAR IMAGE SRC ASSIGNMENT PARA ARQUIVOS ESTÁTICOS
-    const originalImageSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-    if (originalImageSrcDescriptor && originalImageSrcDescriptor.set) {
-        Object.defineProperty(HTMLImageElement.prototype, 'src', {
-            get: function() {
-                return originalImageSrcDescriptor.get.call(this);
-            },
-            set: function(val) {
-                if (typeof val === 'string' && val.startsWith('/') && !val.startsWith('//')) {
-                    val = '.' + val;
-                }
-                originalImageSrcDescriptor.set.call(this, val);
-            },
-            configurable: true
-        });
-    }
-
     // 4. INTERCEPTAR FETCH/XHR PARA CARREGAMENTO LOCAL RELATIVO & MOCK DE APIS
     function mockApiResponse(url) {
         if (url.includes('game-find') || url.includes('game-info') || url.includes('seek-game')) {
