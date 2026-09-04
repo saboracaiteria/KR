@@ -64,6 +64,19 @@
         localStorage.setItem('krunker_terms', 'true');
         localStorage.setItem('readyClaim', 'true');
         localStorage.setItem('krunker_news', '999');
+
+        // DEFINIR VARIÁVEIS GLOBAIS DE SELEÇÃO DE CLASSE / CARREGAMENTO
+        window.classIndex = 0;
+        window.cEz = "0";
+        window.cKG = "0";
+        window.cEy = [0, 1, 2, 3, 4];
+        window.cEv = 0;
+        window.cEw = 0;
+        window.cEs = 0;
+        window.cEu = 0;
+        window.cEt = 0;
+        window.cBI = 0;
+        window.cBM = 0;
     } catch (e) {
         console.warn('⚠️ Falha ao configurar localStorage:', e);
     }
