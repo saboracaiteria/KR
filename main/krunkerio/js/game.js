@@ -82505,25 +82505,15 @@
             }
             ,
             window['enterGame'] = function () {
-                if (/*cAH['singlePlayer'] && !cBH*/ true) {
-                    cJj('0:00');
-                    var czK = cAH['getSpawnPoint'](null, !0x0)
-                        , czL = cAH['classes'][parseInt(classIndex)];
-                    cKU([cAG['socketId'], 0x1, czK['x'], czK['y'], czK['z'], /*'TEST'*/'Sidney [DEV]', classIndex, czL['health'], czL['health'], null, 0x64, null, [null == cEy[czL['loadout'][0x0]] ? -0x1 : cEy[czL['loadout'][0x0]], null == cEy[czL['loadout'][0x1]] ? -0x1 : cEy[czL['loadout'][0x1]]], null, null, czL['secondary'] ? parseInt(cEz) : null, !0x1, null, -((czK['dir'] || 0x0) + 0x1) * Math['PI'] / 0x2]),
-                        cBH = !0x0,
-                        cLQ([0x1, /*'TEST'*/'Sidney [DEV]', 0x0, 0x0, 0x0, 0x0]),
-                        cAD['toggleMenu'](!0x1);
-                } else if (cAG['connected'] && (!cBH || window['spectating'] && !cBI)) {
-                    bloodDisplay['style']['display'] = 'none',
-                        cBH = !0x0,
-                        window['idleTimer'] = 0x0,
-                        cAD['toggleMenu'](!0x1),
-                        instructions['innerHTML'] = czU['get']('generic.loading'),
-                        window['loading'] = !0x0;
-                    czL = parseInt(classIndex);
-                    var czM = cAH['classes'][czL]['loadout']
-                        , czN = [null == cEy[czM[0x0]] ? -0x1 : cEy[czM[0x0]], null == cEy[czM[0x1]] ? -0x1 : cEy[czM[0x1]]];
-                    cAG['send']('etrg', [czL, parseInt(cKG), czN, parseInt(cEw), parseInt(cEv), parseInt(cEz), cBI ? 0x1 : 0x0, cBM ? 0x1 : 0x0, cEs, parseInt(cEu), parseInt(cEt)]);
+                bloodDisplay['style']['display'] = 'none';
+                cBH = !0x0;
+                window['idleTimer'] = 0x0;
+                cAD['toggleMenu'](!0x1);
+                if (cAG && cAG['connected']) {
+                    let czL = parseInt(classIndex || 0);
+                    let czM = cAH['classes'][czL]['loadout'];
+                    let czN = [null == cEy[czM[0x0]] ? -0x1 : cEy[czM[0x0]], null == cEy[czM[0x1]] ? -0x1 : cEy[czM[0x1]]];
+                    cAG['send']('etrg', [czL, parseInt(cKG || 0), czN, parseInt(cEw || 0), parseInt(cEv || 0), parseInt(cEz || 0), 0, 0, cEs, 0, 0]);
                 }
             }
             ,
