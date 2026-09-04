@@ -173,18 +173,13 @@
 
         init() {
             console.log('⚡ Virtual WebSocket Server - iniciando sequência de pacotes...');
-            // Replica exatamente gameserver.js:
-            // ws.sendToWs(['pi', null])
-            // ws.sendToWs(['load', 20000, ws.ID])
-            // ws.sendToWs(['io-init', ws.ID])
-            // sendLoadMap(mapIndex)  <-- tudo proativo, sem esperar cliente
             setTimeout(() => {
                 this.client._triggerOpen();
                 this.sendPacket(['pi', null]);
                 setTimeout(() => {
-                    this.sendPacket(['load', 20000, 'offline_player']);
+                    this.sendPacket(['load', 20000, 1]);
                     setTimeout(() => {
-                        this.sendPacket(['io-init', 'offline_player']);
+                        this.sendPacket(['io-init', [1]]);
                         setTimeout(() => {
                             this.sendMapInit();
                         }, 200);
@@ -257,6 +252,14 @@
             this.startTimer();
 
             setTimeout(() => {
+                const spawnPlayerData = [
+                    'cKU',
+                    [
+                        1, 1, 0, 10, 0, 'OfflinePlayer', 0, 100, 100, null, 100, null,
+                        [0, 1], null, null, 0, false, null, 0
+                    ]
+                ];
+                this.sendPacket(spawnPlayerData);
                 this.sendPacket(['start', 0, true, false, true]);
                 if (typeof window.enterGame === 'function') {
                     try { window.enterGame(); } catch(e) {}
