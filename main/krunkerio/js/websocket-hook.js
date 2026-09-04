@@ -20,6 +20,34 @@
         console.warn('⚠️ Falha ao configurar localStorage:', e);
     }
 
+    // 0.1 GARANTIR ELEMENTOS GLOBAIS DO DOM PARA EVITAR REFERENCEERROR
+    const requiredGlobalIds = [
+        'menuMiniProfilePic', 'hudClassImg', 'menuFPSDisplay', 'ingameFPS',
+        'fpsDisplay', 'pingDisplay', 'curGameInfo', 'teamScores',
+        'leaderDisplay', 'timerDisplay', 'ammoDisplay', 'healthHolder',
+        'weaponDisplay', 'killCardHolder', 'victorySub', 'reticle',
+        'instructions', 'instructionHolder', 'chatHolder', 'chatList',
+        'specStats', 'speakerDisplay', 'bloodDisplay', 'deathCount',
+        'recTimer', 'purchaseLoad', 'purchLoadRing', 'purchaseLabel',
+        'customizeBtn', 'customizeButton', 'policeBtn', 'mailCount',
+        'newsHolder', 'voiceDisplay', 'inviteBox', 'inviteButton',
+        'purchaseHolder', 'chatInput', 'menuClassContainer', 'windowHolder',
+        'endTable', 'menuHider', 'subLogoButtons'
+    ];
+
+    for (const id of requiredGlobalIds) {
+        if (!document.getElementById(id)) {
+            const dummy = document.createElement(id.toLowerCase().includes('pic') || id.toLowerCase().includes('img') ? 'img' : 'div');
+            dummy.id = id;
+            dummy.className = 'ghost-ui';
+            dummy.style.display = 'none';
+            (document.body || document.documentElement).appendChild(dummy);
+            window[id] = dummy;
+        } else {
+            window[id] = document.getElementById(id);
+        }
+    }
+
     // 1. LER CONFIGURAÇÕES DA URL
     const urlParams = new URLSearchParams(window.location.search);
     const mapParam = urlParams.get('map') || 'burg';
