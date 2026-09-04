@@ -172,12 +172,23 @@
         }
 
         init() {
-            console.log('⚡ Virtual WebSocket Server inicializado localmente (Standalone)');
+            console.log('⚡ Virtual WebSocket Server - iniciando sequência de pacotes...');
+            // Replica exatamente gameserver.js:
+            // ws.sendToWs(['pi', null])
+            // ws.sendToWs(['load', 20000, ws.ID])
+            // ws.sendToWs(['io-init', ws.ID])
+            // sendLoadMap(mapIndex)  <-- tudo proativo, sem esperar cliente
             setTimeout(() => {
                 this.client._triggerOpen();
                 this.sendPacket(['pi', null]);
                 setTimeout(() => {
-                    this.sendPacket(['load', 30000, 'offline_player']);
+                    this.sendPacket(['load', 20000, 'offline_player']);
+                    setTimeout(() => {
+                        this.sendPacket(['io-init', 'offline_player']);
+                        setTimeout(() => {
+                            this.sendMapInit();
+                        }, 200);
+                    }, 100);
                 }, 100);
             }, 50);
         }
