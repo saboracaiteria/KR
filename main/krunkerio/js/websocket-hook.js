@@ -324,9 +324,9 @@
         }
     }
 
-    // 3. WEBSOCKET PROXY COM DETECÇÃO STANDALONE
+    // 3. WEBSOCKET PROXY CONECTADO AO RENDER.COM
     const OriginalWebSocket = window.WebSocket;
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const RENDER_WS_URL = 'wss://krunker-nildoxz.onrender.com';
 
     window.WebSocket = class {
         constructor(url, protocols) {
@@ -338,43 +338,38 @@
             this.onerror = null;
             this.onclose = null;
 
-            // Se estiver em localhost com servidor backend ativo, tenta OriginalWebSocket primeiro
-            if (isLocalhost && OriginalWebSocket) {
-                try {
-                    const wsUrl = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/';
-                    this._realWs = new OriginalWebSocket(wsUrl, protocols);
-                    this._realWs.binaryType = 'arraybuffer';
+            console.log('⚡ Conectando WebSocket real ao backend no Render:', RENDER_WS_URL);
+            try {
+                this._realWs = new OriginalWebSocket(RENDER_WS_URL, protocols);
+                this._realWs.binaryType = 'arraybuffer';
 
-                    this._realWs.onopen = (e) => {
-                        this.readyState = 1;
-                        if (this.onopen) this.onopen(e);
-                        this._emit('open', e);
-                    };
-                    this._realWs.onmessage = (e) => {
-                        if (this.onmessage) this.onmessage(e);
-                        this._emit('message', e);
-                    };
-                    this._realWs.onerror = () => {
-                        console.warn('⚠️ Falha no WebSocket real local, ativando Virtual WebSocket...');
+                this._realWs.onopen = (e) => {
+                    console.log('✅ WebSocket conectado com sucesso ao Render!');
+                    this.readyState = 1;
+                    if (this.onopen) this.onopen(e);
+                    this._emit('open', e);
+                };
+                this._realWs.onmessage = (e) => {
+                    if (this.onmessage) this.onmessage(e);
+                    this._emit('message', e);
+                };
+                this._realWs.onerror = (err) => {
+                    console.warn('⚠️ Erro de conexão no WebSocket do Render, usando fallback virtual:', err);
+                    this._fallbackToVirtual();
+                };
+                this._realWs.onclose = (e) => {
+                    if (this.readyState === 1) {
+                        this.readyState = 3;
+                        if (this.onclose) this.onclose(e);
+                        this._emit('close', e);
+                    } else {
                         this._fallbackToVirtual();
-                    };
-                    this._realWs.onclose = (e) => {
-                        if (this.readyState === 1) {
-                            this.readyState = 3;
-                            if (this.onclose) this.onclose(e);
-                            this._emit('close', e);
-                        } else {
-                            this._fallbackToVirtual();
-                        }
-                    };
-                    return;
-                } catch (e) {
-                    console.warn('⚠️ Exceção ao conectar no WS local:', e);
-                }
+                    }
+                };
+            } catch (e) {
+                console.warn('⚠️ Exceção ao conectar no WS do Render:', e);
+                this._fallbackToVirtual();
             }
-
-            // GitHub Pages ou sem backend local: Iniciar Virtual Server direto
-            this._fallbackToVirtual();
         }
 
         _fallbackToVirtual() {
