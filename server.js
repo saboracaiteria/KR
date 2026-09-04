@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const DEFAULT_MAP = 0; // Burg
 
 // HEADERS ANTI-CACHE & CORS
