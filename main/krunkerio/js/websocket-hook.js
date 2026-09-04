@@ -276,6 +276,7 @@
             this.startTimer();
 
             setTimeout(() => {
+                // cKU packet local
                 const spawnPlayerData = [
                     'cKU',
                     [
@@ -284,6 +285,14 @@
                     ]
                 ];
                 this.sendPacket(spawnPlayerData);
+
+                // Pacote '0' (Packet de Render/Spawn de jogador 3D no motor do Krunker)
+                // [0, player_id, x, y, z, rx, ry, rz, is_active, ...]
+                const playerSpawn3D = [
+                    0, 1, 0, 10, 0, 0, 0, 0, true, false, false, 0, 0, 0, 0, true, false
+                ];
+                this.sendPacket(playerSpawn3D);
+
                 this.sendPacket(['start', 0, true, false, true]);
                 if (typeof window.enterGame === 'function') {
                     try { window.enterGame(); } catch(e) {}
