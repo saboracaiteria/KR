@@ -22,9 +22,10 @@
 
     // 0.1 GARANTIR ELEMENTOS GLOBAIS DO DOM PARA EVITAR REFERENCEERROR
     const requiredGlobalIds = [
-        'menuMiniProfilePic', 'hudClassImg', 'menuFPSDisplay', 'ingameFPS',
-        'fpsDisplay', 'pingDisplay', 'curGameInfo', 'teamScores',
-        'leaderDisplay', 'timerDisplay', 'ammoDisplay', 'healthHolder',
+        'menuMiniProfilePic', 'hudClassImg', 'classPreviewCanvas', 'menuClassName',
+        'menuClassSubtext', 'claimHolder', 'claimTimer', 'claimImg', 'merchHolder',
+        'menuFPSDisplay', 'ingameFPS', 'fpsDisplay', 'pingDisplay', 'curGameInfo',
+        'teamScores', 'leaderDisplay', 'timerDisplay', 'ammoDisplay', 'healthHolder',
         'weaponDisplay', 'killCardHolder', 'victorySub', 'reticle',
         'instructions', 'instructionHolder', 'chatHolder', 'chatList',
         'specStats', 'speakerDisplay', 'bloodDisplay', 'deathCount',
@@ -37,7 +38,10 @@
 
     for (const id of requiredGlobalIds) {
         if (!document.getElementById(id)) {
-            const dummy = document.createElement(id.toLowerCase().includes('pic') || id.toLowerCase().includes('img') ? 'img' : 'div');
+            let tag = 'div';
+            if (id.toLowerCase().includes('canvas')) tag = 'canvas';
+            else if (id.toLowerCase().includes('pic') || id.toLowerCase().includes('img')) tag = 'img';
+            const dummy = document.createElement(tag);
             dummy.id = id;
             dummy.className = 'ghost-ui';
             dummy.style.display = 'none';
