@@ -102,7 +102,7 @@
         'teamNm2', 'spec0', 'spec1', 'scoreZoneCount', 'livesCount', 'killStreakHolder',
         'killsVal', 'deathsVal', 'blocker', 'victoryText', 'voteHolder', 'modURL',
         'modInput', 'gameURL', 'mapUpResp', 'modUpResp', 'mapDataNew', 'pubModName',
-        'pubModURL', 'modVote'
+        'pubModURL', 'modVote', 'timerVal', 'specTimer', 'endTimer'
     ];
 
     for (const id of requiredGlobalIds) {
