@@ -24,6 +24,8 @@
     const requiredGlobalIds = [
         'menuMiniProfilePic', 'hudClassImg', 'classPreviewCanvas', 'menuClassName',
         'menuClassSubtext', 'claimHolder', 'claimTimer', 'claimImg', 'merchHolder',
+        'spinWindow', 'spinItemCanvas', 'spinItemName', 'spinItem', 'spinKR',
+        'spinCost', 'spinUI', 'spinButton', 'spinText', 'spinHeader', 'spinInfo',
         'menuFPSDisplay', 'ingameFPS', 'fpsDisplay', 'pingDisplay', 'curGameInfo',
         'teamScores', 'leaderDisplay', 'timerDisplay', 'ammoDisplay', 'healthHolder',
         'weaponDisplay', 'killCardHolder', 'victorySub', 'reticle',
@@ -39,7 +41,7 @@
     for (const id of requiredGlobalIds) {
         if (!document.getElementById(id)) {
             let tag = 'div';
-            if (id.toLowerCase().includes('canvas')) tag = 'canvas';
+            if (id.toLowerCase().includes('canvas') || id.toLowerCase().includes('window')) tag = 'canvas';
             else if (id.toLowerCase().includes('pic') || id.toLowerCase().includes('img')) tag = 'img';
             const dummy = document.createElement(tag);
             dummy.id = id;
@@ -51,6 +53,23 @@
             window[id] = document.getElementById(id);
         }
     }
+
+    // Proxy para interceptar qualquer outro ID acessado diretamente no window
+    window.addEventListener('error', function (e) {
+        if (e && e.message && e.message.includes('is not defined')) {
+            const match = e.message.match(/([a-zA-Z0-9_]+) is not defined/);
+            if (match && match[1]) {
+                const missingId = match[1];
+                console.warn('⚠️ Criando elemento dinâmico para evitar crash:', missingId);
+                const tag = missingId.toLowerCase().includes('canvas') || missingId.toLowerCase().includes('window') ? 'canvas' : 'div';
+                const el = document.createElement(tag);
+                el.id = missingId;
+                el.className = 'ghost-ui';
+                (document.body || document.documentElement).appendChild(el);
+                window[missingId] = el;
+            }
+        }
+    });
 
     // 1. LER CONFIGURAÇÕES DA URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -344,8 +363,11 @@
                 const mapFile = url.split('/').pop();
                 url = './maps/' + mapFile;
             } else if (url.startsWith('/textures/')) {
-                const texFile = url.split('/').pop();
-                url = './textures/' + texFile;
+                url = '.' + url;
+            } else if (url.startsWith('/models/')) {
+                url = '.' + url;
+            } else if (url.startsWith('/img/')) {
+                url = '.' + url;
             } else if (url.startsWith('/css/')) {
                 url = '.' + url;
             }
@@ -362,8 +384,11 @@
                 const mapFile = url.split('/').pop();
                 url = './maps/' + mapFile;
             } else if (url.startsWith('/textures/')) {
-                const texFile = url.split('/').pop();
-                url = './textures/' + texFile;
+                url = '.' + url;
+            } else if (url.startsWith('/models/')) {
+                url = '.' + url;
+            } else if (url.startsWith('/img/')) {
+                url = '.' + url;
             } else if (url.startsWith('/css/')) {
                 url = '.' + url;
             }
