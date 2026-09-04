@@ -15,10 +15,15 @@
 
     function fixUrl(url) {
         if (typeof url !== 'string') return url;
-        // URL absoluta apontando para a raiz do domínio (ex: https://saboracaiteria.github.io/textures/...)
+        // Redireciona qualquer requisição externa (krunker.io, assets.krunker.io, etc) para o repositório local
+        if (url.includes('krunker.io') || url.includes('matchmaker') || url.includes('asset')) {
+            const fileName = url.split('/').pop().split('?')[0];
+            return _ghPagesOrigin + _basePath + 'textures/' + fileName;
+        }
+        // URL absoluta apontando para a raiz do domínio no GitHub Pages (ex: https://saboracaiteria.github.io/textures/...)
         if (url.startsWith(_ghPagesOrigin + '/') && !url.startsWith(_ghPagesOrigin + _basePath)) {
-            const path = url.slice(_ghPagesOrigin.length); // ex: /textures/recticle.png
-            return _ghPagesOrigin + _basePath + path.slice(1); // => /KR/main/krunkerio/textures/recticle.png
+            const path = url.slice(_ghPagesOrigin.length);
+            return _ghPagesOrigin + _basePath + path.slice(1);
         }
         // URL relativa à raiz (ex: /textures/..., /models/...)
         if (url.startsWith('/') && !url.startsWith('//')) {
@@ -26,6 +31,12 @@
         }
         return url;
     }
+
+    // Intercepta Construtores de Audio para redirecionar arquivos sonoros locais
+    const OriginalAudio = window.Audio;
+    window.Audio = function(src) {
+        return new OriginalAudio(fixUrl(src));
+    };
 
     // INTERCEPTAR IMAGE SRC
     const originalImageSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
