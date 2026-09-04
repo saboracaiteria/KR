@@ -35,7 +35,13 @@
         'customizeBtn', 'customizeButton', 'policeBtn', 'mailCount',
         'newsHolder', 'voiceDisplay', 'inviteBox', 'inviteButton',
         'purchaseHolder', 'chatInput', 'menuClassContainer', 'windowHolder',
-        'endTable', 'menuHider', 'subLogoButtons'
+        'endTable', 'menuHider', 'subLogoButtons',
+        // In-game Match & Spectate & End Screen elements
+        'teamName', 'challIcon', 'mapVote', 'specNameTm0', 'teamNm1', 'specNameTm1',
+        'teamNm2', 'spec0', 'spec1', 'scoreZoneCount', 'livesCount', 'killStreakHolder',
+        'killsVal', 'deathsVal', 'blocker', 'victoryText', 'voteHolder', 'modURL',
+        'modInput', 'gameURL', 'mapUpResp', 'modUpResp', 'mapDataNew', 'pubModName',
+        'pubModURL', 'modVote'
     ];
 
     for (const id of requiredGlobalIds) {
