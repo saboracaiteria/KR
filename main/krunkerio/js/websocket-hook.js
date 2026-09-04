@@ -1,18 +1,38 @@
-// WEBSOCKET & CONFIG HOOK V6 (Full Standalone In-Memory WebSocket + GitHub Pages Compatible)
+// WEBSOCKET & CONFIG HOOK V7 (Full Standalone In-Memory WebSocket + GitHub Pages Compatible)
 (function () {
-    // INTERCEPTAR IMAGE SRC LOGO NO INÍCIO DO SCRIPT
+    // ============================================================
+    // FUNÇÃO CENTRAL DE CORREÇÃO DE URL (usada em TODOS os interceptores)
+    // Corrige URLs relativas (/textures/...) E absolutas (https://saboracaiteria.github.io/textures/...)
+    // ============================================================
+    const _ghPagesOrigin = window.location.origin; // ex: https://saboracaiteria.github.io
+    const _basePath = (function() {
+        // Extrai o prefixo do caminho da página atual ex: /KR/main/krunkerio/
+        const parts = window.location.pathname.split('/');
+        // Remove o arquivo index.html se existir
+        if (parts[parts.length - 1].includes('.')) parts.pop();
+        return parts.join('/') + '/';
+    })();
+
+    function fixUrl(url) {
+        if (typeof url !== 'string') return url;
+        // URL absoluta apontando para a raiz do domínio (ex: https://saboracaiteria.github.io/textures/...)
+        if (url.startsWith(_ghPagesOrigin + '/') && !url.startsWith(_ghPagesOrigin + _basePath)) {
+            const path = url.slice(_ghPagesOrigin.length); // ex: /textures/recticle.png
+            return _ghPagesOrigin + _basePath + path.slice(1); // => /KR/main/krunkerio/textures/recticle.png
+        }
+        // URL relativa à raiz (ex: /textures/..., /models/...)
+        if (url.startsWith('/') && !url.startsWith('//')) {
+            return '.' + url;
+        }
+        return url;
+    }
+
+    // INTERCEPTAR IMAGE SRC
     const originalImageSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
     if (originalImageSrcDescriptor && originalImageSrcDescriptor.set) {
         Object.defineProperty(HTMLImageElement.prototype, 'src', {
-            get: function() {
-                return originalImageSrcDescriptor.get.call(this);
-            },
-            set: function(val) {
-                if (typeof val === 'string' && val.startsWith('/') && !val.startsWith('//')) {
-                    val = '.' + val;
-                }
-                originalImageSrcDescriptor.set.call(this, val);
-            },
+            get: function() { return originalImageSrcDescriptor.get.call(this); },
+            set: function(val) { originalImageSrcDescriptor.set.call(this, fixUrl(val)); },
             configurable: true
         });
     }
@@ -225,14 +245,8 @@
             this.sendPacket(initData);
             this.startTimer();
 
-            const triggerSpawn = () => {
-                this.sendPacket(['start', 0, true, false, true]);
-                this.sendPacket([0, 0, 10, 10, 10, 0, 0, 0, true, false, false, 0, 0, 0, 0, true, false]);
-            };
-
-            setTimeout(triggerSpawn, 300);
-            setTimeout(triggerSpawn, 1000);
-            setTimeout(triggerSpawn, 2500);
+            setTimeout(() => { this.sendPacket(['start', 0, true, false, true]); }, 500);
+            setTimeout(() => { this.sendPacket(['start', 0, true, false, true]); }, 2000);
         }
 
         handleClientMessage(buf) {
@@ -387,18 +401,7 @@
                     headers: { 'Content-Type': 'application/json' }
                 }));
             }
-            if (url.startsWith('/maps/')) {
-                const mapFile = url.split('/').pop();
-                url = './maps/' + mapFile;
-            } else if (url.startsWith('/textures/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/models/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/img/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/css/')) {
-                url = '.' + url;
-            }
+            url = fixUrl(url);
         }
         return originalFetch(url, options);
     };
@@ -407,21 +410,7 @@
     const originalSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
         this._reqUrl = url;
-        if (typeof url === 'string') {
-            if (url.startsWith('/maps/')) {
-                const mapFile = url.split('/').pop();
-                url = './maps/' + mapFile;
-            } else if (url.startsWith('/textures/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/models/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/img/')) {
-                url = '.' + url;
-            } else if (url.startsWith('/css/')) {
-                url = '.' + url;
-            }
-        }
-        return originalOpen.call(this, method, url, ...rest);
+        return originalOpen.call(this, method, fixUrl(url), ...rest);
     };
 
     XMLHttpRequest.prototype.send = function (...args) {
