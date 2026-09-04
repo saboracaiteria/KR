@@ -80551,7 +80551,11 @@
                                     , crs = cro[0x1];
 
                                 if (crq === 'io-init') {
-                                    crx.socketId = crs[0];
+                                    crx.socketId = crs[0] || 1;
+                                    window.cAG = crx; // exporta socket global
+                                    setTimeout(function() {
+                                        if (typeof window.enterGame === 'function') window.enterGame();
+                                    }, 300);
                                 } else if (crp[crq]) {
                                     let data = [...cro]
                                     data.shift()
