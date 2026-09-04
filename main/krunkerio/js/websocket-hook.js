@@ -256,8 +256,12 @@
             this.sendPacket(initData);
             this.startTimer();
 
-            setTimeout(() => { this.sendPacket(['start', 0, true, false, true]); }, 500);
-            setTimeout(() => { this.sendPacket(['start', 0, true, false, true]); }, 2000);
+            setTimeout(() => {
+                this.sendPacket(['start', 0, true, false, true]);
+                if (typeof window.enterGame === 'function') {
+                    try { window.enterGame(); } catch(e) {}
+                }
+            }, 300);
         }
 
         handleClientMessage(buf) {

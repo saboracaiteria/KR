@@ -87125,7 +87125,7 @@
                 cXD['requestPointerLock'] = cXD['requestPointerLock'] || cXD['mozRequestPointerLock'] || cXD['webkitRequestPointerLock'];
                 var cXE = function () {
                     cXC['enabled'] = document['pointerLockElement'] === cXD || document['mozPointerLockElement'] === cXD || document['webkitPointerLockElement'] === cXD,
-                        (cXo['connected'] || cXm['singlePlayer']) && (cXC['enabled'] && enterGame(),
+                        (/*cXo['connected'] || cXm['singlePlayer']*/ true) && (/*cXC['enabled'] &&*/ enterGame(),
                             cXg['toggleControlUI'](cXC['enabled']));
                 };
                 document['addEventListener']('pointerlockchange', cXE, !0x1),
