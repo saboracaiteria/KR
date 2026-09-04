@@ -6,7 +6,7 @@
 	<title>Krunker Offline</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<link rel="shortcut icon" type="image/png" href="./img/favicon.png">
-	<link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="./css/main.css">
 	<style>
 		/* BASE UI - PRECISA ACUPAR NO SPACE PARA FILHOS FUNCIONAREM */
 		/* Mas escondemos visualmente */
@@ -92,10 +92,12 @@
 
 <body oncontextmenu="return false;">
 
+	<!-- LIBS (LOCAL - OFFLINE & GH PAGES MODE) -->
+	<script src="./libs/msgpack.min.js"></script>
+
 	<!-- HOOK -->
 	<script src="./js/websocket-hook.js"></script>
 
-	<!-- LIBS (LOCAL - OFFLINE MODE) -->
 	<script src="./libs/jquery.min.js"></script>
 	<script src="./libs/howler.min.js"></script>
 	<script src="./libs/tween.min.js"></script>

@@ -1,117 +1,361 @@
-/**
- * KRUNKER OFFLINE - DIRECT HOOK v4
- * Força o jogo a entrar direto / Configurações / Anti-Crash
- */
-
+// WEBSOCKET & CONFIG HOOK V5 (Full Standalone In-Memory WebSocket + GitHub Pages Compatible)
 (function () {
-    console.log('⚡ Hook Direct-Play v4 Ativo (Safe Mode)');
+    console.log('🎮 Ativando Hook Standalone v5...');
 
-    // 1. CONFIGURAÇÃO INSTANTÂNEA
-    function forceSettings() {
-        try {
+    // 0. FORÇAR CRIAÇÃO DE CONFIGURAÇÃO VÁLIDA
+    try {
+        let settings = localStorage.getItem('krunker_settings');
+        if (!settings || settings === '{}') {
             localStorage.setItem('krunker_settings', JSON.stringify({
-                terms: true,
-                needsTutorial: false,
-                error: false,
-                start: true,
-                showWeapon: true,
-                weaponBob: true,
-                fov: 70,
                 resolution: 1,
-                crosshair: 0
+                fov: 90,
+                fpsDisplay: true,
+                speedOff: false
             }));
-
-            localStorage.setItem('krunker_class', '0');
-            localStorage.setItem('class', '0');
-            localStorage.setItem('terms', '1');
-            localStorage.setItem('consent', '1');
-        } catch (e) { }
+        }
+        localStorage.setItem('krunker_terms', 'true');
+        localStorage.setItem('readyClaim', 'true');
+        localStorage.setItem('krunker_news', '999');
+    } catch (e) {
+        console.warn('⚠️ Falha ao configurar localStorage:', e);
     }
-    forceSettings();
-    setInterval(forceSettings, 2000);
 
-    // 1.5 LER PARÂMETRO DO MAPA DA URL
+    // 1. LER CONFIGURAÇÕES DA URL
     const urlParams = new URLSearchParams(window.location.search);
-    const mapId = urlParams.get('map');
-    if (mapId !== null) {
-        console.log(`🗺️ Mapa selecionado: ${mapId}`);
-        try {
-            localStorage.setItem('krunker_map', mapId);
-            localStorage.setItem('map', mapId);
-            window.SELECTED_MAP_ID = parseInt(mapId);
-        } catch (e) { }
+    const mapParam = urlParams.get('map') || 'burg';
+
+    const MAP_MAPPING = {
+        'burg': 0,
+        'littletown': 1,
+        'sandstorm': 2,
+        'subzero': 3,
+        'kanji': 4
+    };
+
+    let selectedMapId = 0;
+    if (mapParam in MAP_MAPPING) {
+        selectedMapId = MAP_MAPPING[mapParam];
+    } else if (!isNaN(parseInt(mapParam))) {
+        selectedMapId = parseInt(mapParam);
     }
 
-    // 2. WEBSOCKET PROXY
+    console.log('🗺️ Mapa selecionado: ' + mapParam + ' (ID: ' + selectedMapId + ')');
+    window.SELECTED_MAP_ID = selectedMapId;
+
+    // Helper: decodificar/codificar pacote msgpack com 2 bytes de padding do Krunker
+    function decodePacket(buffer) {
+        if (!window.msgpack) return null;
+        try {
+            const uint8 = new Uint8Array(buffer);
+            return window.msgpack.decode(uint8.subarray(0, uint8.length - 2));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function encodePacket(data) {
+        if (!window.msgpack) return new Uint8Array(0).buffer;
+        try {
+            const encoded = window.msgpack.encode(data);
+            const packet = new Uint8Array(encoded.length + 2);
+            packet.set(encoded, 0);
+            return packet.buffer;
+        } catch (e) {
+            console.error('Erro ao codificar msgpack:', e);
+            return new Uint8Array(0).buffer;
+        }
+    }
+
+    // 2. VIRTUAL IN-BROWSER WEBSOCKET SERVER
+    // Permite que o jogo funcione 100% no GitHub Pages sem Node.js backend
+    class VirtualWebSocketServer {
+        constructor(clientWs) {
+            this.client = clientWs;
+            this.mapId = window.SELECTED_MAP_ID !== undefined ? window.SELECTED_MAP_ID : 0;
+            this.timerInterval = null;
+            this.timeRemaining = 240;
+            this.init();
+        }
+
+        init() {
+            console.log('⚡ Virtual WebSocket Server inicializado localmente (Standalone)');
+            setTimeout(() => {
+                this.client._triggerOpen();
+                this.sendPacket(['pi', null]);
+                setTimeout(() => {
+                    this.sendPacket(['load', 30000, 'offline_player']);
+                }, 100);
+            }, 50);
+        }
+
+        sendPacket(data) {
+            const buf = encodePacket(data);
+            this.client._dispatchBinaryMessage(buf);
+        }
+
+        startTimer() {
+            if (this.timerInterval) clearInterval(this.timerInterval);
+            this.timerInterval = setInterval(() => {
+                const mins = Math.floor(this.timeRemaining / 60);
+                const secs = this.timeRemaining % 60;
+                const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                this.sendPacket(['t', timeStr]);
+                if (this.timeRemaining > 0) {
+                    this.timeRemaining--;
+                } else {
+                    this.timeRemaining = 240;
+                }
+            }, 1000);
+        }
+
+        sendMapInit() {
+            const config = {
+                "cost": 0, "deltaMlt": 1, "maxPlayers": 2, "minPlayers": 0, "gameTime": 4, "warmupTime": 0,
+                "gamRounds": 1, "intermTmr": 30, "forceSpawn": 0, "lives": 0, "scoreLimit": 0, "keepTScore": false,
+                "objtvTime": 1, "forceC": true, "logTim": true, "lstChkT": false, "gravMlt": 1, "fallDmg": 0,
+                "fallDmgThr": 0, "jumpMlt": 1, "fixMov": false, "slidTime": 1, "slidSpd": 1, "impulseMlt": 1,
+                "wallJP": 1, "strafeSpd": 1.2, "canSlide": true, "airStrf": false, "autoJump": false, "bDrop": false,
+                "healthMlt": 1, "hitBoxPad": 0.6, "fiRat": 1, "reSpd": 1, "hpRegen": true, "killRewards": true,
+                "headshotOnly": false, "noSecondary": false, "noStreaks": false, "disableB": false, "throwMel": true,
+                "chrgWeps": true, "selTeam": false, "frFire": false, "nameTeam1": "Team 1", "nameTeam2": "Team 2",
+                "allowSpect": true, "thirdPerson": false, "nameTags": false, "kCams": true, "aAnon": true,
+                "specSlots": 2, "tmSize": 3, "noCosm": false, "tstCmp": false, "limitClasses": 0, "noDraws": false,
+                "bstOfR": false, "headClipFix": false, "maxPS": false, "promServ": false,
+                "maps": [0, 1, 2, 3, 4],
+                "modes": null,
+                "classes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 15]
+            };
+
+            const initData = [
+                'init',
+                this.mapId,
+                0, 0, null, null,
+                config,
+                null, 0, null,
+                {
+                    gor: 1, lockT: 0, roundC: 0,
+                    bill: { t: 'KRUNKER OFFLINE', tc: '#00ff88', bc: '#000000' },
+                    zone: 0, lck: 0,
+                    obj: [null, 0],
+                    pwup: [0, 0, 0],
+                    flg: [],
+                    dest: []
+                },
+                {},
+                true, false, false,
+                'offline-oid-12345',
+                'offline-sid-67890',
+                193300
+            ];
+
+            this.sendPacket(initData);
+            this.startTimer();
+
+            setTimeout(() => {
+                this.sendPacket(['start', 0, true, false, true]);
+            }, 1000);
+        }
+
+        handleClientMessage(buf) {
+            const data = decodePacket(buf);
+            if (!data || !Array.isArray(data)) return;
+            const type = data[0];
+
+            if (type === 'io-init') {
+                this.sendPacket(['io-init', 'offline_player']);
+                setTimeout(() => {
+                    this.sendMapInit();
+                }, 200);
+            } else if (type === 'po') {
+                this.sendPacket(['pir', 1]);
+            } else if (type === 'en') {
+                this.sendPacket(['start', 0, true, false, true]);
+            } else if (type === 's' || type === 'etrg') {
+                this.sendPacket(['start', 0, true, false, true]);
+            }
+        }
+
+        close() {
+            if (this.timerInterval) clearInterval(this.timerInterval);
+        }
+    }
+
+    // 3. WEBSOCKET PROXY COM DETECÇÃO STANDALONE
     const OriginalWebSocket = window.WebSocket;
-    window.WebSocket = class extends OriginalWebSocket {
-        constructor(...args) {
-            const wsUrl = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/';
-            super(wsUrl);
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-            this.addEventListener('open', () => {
-                console.log('✅ WS Conectado');
-                // Não interagimos com DOM agressivamente aqui para evitar race conditions
-            });
+    window.WebSocket = class {
+        constructor(url, protocols) {
+            this.binaryType = 'arraybuffer';
+            this.readyState = 0; // CONNECTING
+            this.listeners = {};
+            this.onopen = null;
+            this.onmessage = null;
+            this.onerror = null;
+            this.onclose = null;
+
+            // Se estiver em localhost com servidor backend ativo, tenta OriginalWebSocket primeiro
+            if (isLocalhost && OriginalWebSocket) {
+                try {
+                    const wsUrl = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/';
+                    this._realWs = new OriginalWebSocket(wsUrl, protocols);
+                    this._realWs.binaryType = 'arraybuffer';
+
+                    this._realWs.onopen = (e) => {
+                        this.readyState = 1;
+                        if (this.onopen) this.onopen(e);
+                        this._emit('open', e);
+                    };
+                    this._realWs.onmessage = (e) => {
+                        if (this.onmessage) this.onmessage(e);
+                        this._emit('message', e);
+                    };
+                    this._realWs.onerror = () => {
+                        console.warn('⚠️ Falha no WebSocket real local, ativando Virtual WebSocket...');
+                        this._fallbackToVirtual();
+                    };
+                    this._realWs.onclose = (e) => {
+                        if (this.readyState === 1) {
+                            this.readyState = 3;
+                            if (this.onclose) this.onclose(e);
+                            this._emit('close', e);
+                        } else {
+                            this._fallbackToVirtual();
+                        }
+                    };
+                    return;
+                } catch (e) {
+                    console.warn('⚠️ Exceção ao conectar no WS local:', e);
+                }
+            }
+
+            // GitHub Pages ou sem backend local: Iniciar Virtual Server direto
+            this._fallbackToVirtual();
+        }
+
+        _fallbackToVirtual() {
+            this._realWs = null;
+            this._virtualServer = new VirtualWebSocketServer(this);
+        }
+
+        _triggerOpen() {
+            this.readyState = 1; // OPEN
+            const evt = new Event('open');
+            if (this.onopen) this.onopen(evt);
+            this._emit('open', evt);
+        }
+
+        _dispatchBinaryMessage(buffer) {
+            const evt = new MessageEvent('message', { data: buffer });
+            if (this.onmessage) this.onmessage(evt);
+            this._emit('message', evt);
+        }
+
+        _emit(type, evt) {
+            if (this.listeners[type]) {
+                for (const cb of this.listeners[type]) {
+                    try { cb(evt); } catch (err) { console.error(err); }
+                }
+            }
+        }
+
+        addEventListener(type, listener) {
+            if (!this.listeners[type]) this.listeners[type] = [];
+            this.listeners[type].push(listener);
+        }
+
+        removeEventListener(type, listener) {
+            if (!this.listeners[type]) return;
+            this.listeners[type] = this.listeners[type].filter(cb => cb !== listener);
+        }
+
+        send(data) {
+            if (this._realWs && this._realWs.readyState === 1) {
+                this._realWs.send(data);
+            } else if (this._virtualServer) {
+                this._virtualServer.handleClientMessage(data);
+            }
+        }
+
+        close() {
+            this.readyState = 3; // CLOSED
+            if (this._realWs) this._realWs.close();
+            if (this._virtualServer) this._virtualServer.close();
         }
     };
 
-    // 3. INTERCEPTAR FETCH/XHR
+    // 4. INTERCEPTAR FETCH/XHR PARA CARREGAMENTO LOCAL RELATIVO & MOCK DE APIS
+    function mockApiResponse(url) {
+        if (url.includes('game-find') || url.includes('game-info') || url.includes('seek-game')) {
+            return JSON.stringify({ gameId: "OFFLINE", host: window.location.hostname, port: 8080, clientId: "offline_client" });
+        }
+        if (url.includes('ping')) {
+            return JSON.stringify({ ping: 5, region: "local" });
+        }
+        if (url.includes('/api/')) {
+            return JSON.stringify({ success: true, data: [] });
+        }
+        return null;
+    }
+
     const originalFetch = window.fetch;
-    window.fetch = async (url, ...args) => {
-        // Interceptar requisições de mapas
+    window.fetch = function (url, options) {
         if (typeof url === 'string') {
-            // Maps list
-            if (url.includes('maps_0.json') || url.includes('/maps/maps_0.json')) {
-                console.log('📦 Carregando lista de mapas localmente');
-                return originalFetch('/maps/maps_0.json', ...args);
+            const mocked = mockApiResponse(url);
+            if (mocked) {
+                return Promise.resolve(new Response(mocked, {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                }));
             }
-
-            // Individual map data (burg.json, kanji.json, etc)
-            if (url.match(/\/(burg|littletown|sandstorm|subzero|kanji)\.json/)) {
-                const mapName = url.match(/\/(burg|littletown|sandstorm|subzero|kanji)\.json/)[1];
-                console.log(`🗺️ Carregando mapa ${mapName} localmente`);
-                return originalFetch(`/maps/${mapName}.json`, ...args);
+            if (url.startsWith('/maps/')) {
+                const mapFile = url.split('/').pop();
+                url = './maps/' + mapFile;
+            } else if (url.startsWith('/textures/')) {
+                const texFile = url.split('/').pop();
+                url = './textures/' + texFile;
+            } else if (url.startsWith('/css/')) {
+                url = '.' + url;
             }
         }
-        return originalFetch(url, ...args);
+        return originalFetch(url, options);
     };
 
-    // 4. ELIMINAR UI VIA JS (Safe List)
-    // Removemos apenas menus específicos, deixamos uiBase e aimRecticle para CSS lidar ou jogo usar
-    setInterval(() => {
-        const toHide = ['menuHolder', 'windowHolder', 'consentBlock', 'instructions'];
-        toHide.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && el.style.display !== 'none') {
-                el.style.display = 'none';
-                el.style.opacity = '0';
-                el.style.pointerEvents = 'none';
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        this._reqUrl = url;
+        if (typeof url === 'string') {
+            if (url.startsWith('/maps/')) {
+                const mapFile = url.split('/').pop();
+                url = './maps/' + mapFile;
+            } else if (url.startsWith('/textures/')) {
+                const texFile = url.split('/').pop();
+                url = './textures/' + texFile;
+            } else if (url.startsWith('/css/')) {
+                url = '.' + url;
             }
-        });
-
-        // Forçar HUD visível
-        const gameUI = document.getElementById('gameUI');
-        if (gameUI && (gameUI.style.display === 'none' || gameUI.style.visibility === 'hidden')) {
-            gameUI.style.display = 'block';
-            gameUI.style.visibility = 'visible';
         }
-    }, 100);
+        return originalOpen.call(this, method, url, ...rest);
+    };
 
-    // 5. BOTÃO DE VOLTAR
-    window.addEventListener('load', () => {
-        const btn = document.createElement('div');
-        btn.innerHTML = '&#8592;';
-        btn.style.cssText = `
-            position: fixed; top: 10px; left: 10px;
-            color: rgba(255,255,255,0.3); font-size: 24px;
-            cursor: pointer; z-index: 99999;
-            transition: 0.2s; user-select: none;
-        `;
-        btn.onmouseover = () => btn.style.color = 'white';
-        btn.onmouseout = () => btn.style.color = 'rgba(255,255,255,0.3)';
-        btn.onclick = () => window.location.href = '/launcher';
-        document.body.appendChild(btn);
-    });
+    XMLHttpRequest.prototype.send = function (...args) {
+        if (this._reqUrl && typeof this._reqUrl === 'string') {
+            const mocked = mockApiResponse(this._reqUrl);
+            if (mocked) {
+                setTimeout(() => {
+                    Object.defineProperty(this, 'readyState', { value: 4, writable: true });
+                    Object.defineProperty(this, 'status', { value: 200, writable: true });
+                    Object.defineProperty(this, 'responseText', { value: mocked, writable: true });
+                    Object.defineProperty(this, 'response', { value: mocked, writable: true });
+                    this.dispatchEvent(new Event('readystatechange'));
+                    this.dispatchEvent(new Event('load'));
+                }, 10);
+                return;
+            }
+        }
+        return originalSend.apply(this, args);
+    };
 
+    console.log('✅ Hook Standalone v5 pronto com Virtual In-Browser Server e Mocks de API.');
 })();
