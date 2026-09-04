@@ -1,6 +1,23 @@
-// WEBSOCKET & CONFIG HOOK V5 (Full Standalone In-Memory WebSocket + GitHub Pages Compatible)
+// WEBSOCKET & CONFIG HOOK V6 (Full Standalone In-Memory WebSocket + GitHub Pages Compatible)
 (function () {
-    console.log('🎮 Ativando Hook Standalone v5...');
+    // INTERCEPTAR IMAGE SRC LOGO NO INÍCIO DO SCRIPT
+    const originalImageSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    if (originalImageSrcDescriptor && originalImageSrcDescriptor.set) {
+        Object.defineProperty(HTMLImageElement.prototype, 'src', {
+            get: function() {
+                return originalImageSrcDescriptor.get.call(this);
+            },
+            set: function(val) {
+                if (typeof val === 'string' && val.startsWith('/') && !val.startsWith('//')) {
+                    val = '.' + val;
+                }
+                originalImageSrcDescriptor.set.call(this, val);
+            },
+            configurable: true
+        });
+    }
+
+    console.log('🎮 Ativando Hook Standalone v6...');
 
     // 0. FORÇAR CRIAÇÃO DE CONFIGURAÇÃO VÁLIDA
     try {
@@ -208,9 +225,14 @@
             this.sendPacket(initData);
             this.startTimer();
 
-            setTimeout(() => {
+            const triggerSpawn = () => {
                 this.sendPacket(['start', 0, true, false, true]);
-            }, 1000);
+                this.sendPacket([0, 0, 10, 10, 10, 0, 0, 0, true, false, false, 0, 0, 0, 0, true, false]);
+            };
+
+            setTimeout(triggerSpawn, 300);
+            setTimeout(triggerSpawn, 1000);
+            setTimeout(triggerSpawn, 2500);
         }
 
         handleClientMessage(buf) {
